@@ -1,9 +1,9 @@
 "use client"
 
-import client from '@/api/client'
+import client from '@/app/api/client'
 import { Button } from '@/components/ui/button'
 
-const DashBoard = () => {
+const DashBoard =  () => {
 
   return (
     <div>

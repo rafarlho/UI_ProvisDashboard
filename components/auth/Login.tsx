@@ -1,4 +1,4 @@
-import client from '@/api/client';
+import client from '@/app/api/client';
 import React, { FormEvent } from 'react'
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';

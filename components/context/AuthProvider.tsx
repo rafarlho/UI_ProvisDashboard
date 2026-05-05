@@ -1,6 +1,6 @@
 "use client"
 
-import client from "@/api/client"
+import client from "@/app/api/client"
 import { User } from "@supabase/supabase-js"
 import { createContext, useEffect, useState, ReactNode } from "react"
 

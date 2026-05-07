@@ -1,4 +1,5 @@
 "use client"
+
 import { useEffect, useState } from "react"
 import { Category } from "../../../types/category"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -7,6 +8,8 @@ import { Trash2, Pencil, X } from 'lucide-react'
 import { toast } from "sonner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { AgGridReact } from "ag-grid-react"
+import { themeQuartz } from "ag-grid-community"
 
 const Categories = () => {
     const [categories, setCategories] = useState<Category[]>([])
@@ -69,11 +72,42 @@ const Categories = () => {
         fetchCategories()
     }, [])
 
+    const ActionCellRenderer = (params: any) => {
+        const category = params.data;
+        const isSelected = params.context?.selectedCategoru?.id === category.id;
+
+        return (
+            <div className="flex gap-1">
+                {isSelected ? (
+                    <Button variant="secondary" size="icon" onClick={() => params.context.handleCancelEdit()}>
+                        <X />
+                    </Button>
+                ) : (
+                    <Button variant="secondary" size="icon" onClick={() => params.context.handleSelectCategory(category)}>
+                        <Pencil />
+                    </Button>
+                )}
+                <Button variant="destructive" size="icon" onClick={() => params.context.deleteCategory(category.id!)}>
+                    <Trash2 />
+                </Button>
+            </div>
+        );
+    };
+
+    const columnDefs = [
+        { field: "name", headerName: "Nome", flex:1 },
+        {
+            field: "actions",
+            headerName: "",
+            width: 100,
+            cellRenderer: ActionCellRenderer, 
+        },
+    ]
+
     const isEditing = selectedCategory !== null
 
     return (
-        <div className="p-10">
-            <h1>Categorias</h1>
+        <div className="p-10 flex flex-col h-screen">
 
             <Card>
                 <CardHeader>
@@ -103,37 +137,15 @@ const Categories = () => {
                 </CardContent>
             </Card>
 
-            <Card className="mt-4">
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {categories.map((category, index) =>
-                                <TableRow key={index}>
-                                    <TableCell className="font-medium">{category.name}</TableCell>
-                                    <TableCell className="text-right">
-                                        {selectedCategory?.id === category.id ? (
-                                            <Button variant="secondary" size="icon" onClick={handleCancelEdit}>
-                                                <X />
-                                            </Button>
-                                        ) : (
-                                            <Button variant="secondary" size="icon" onClick={() => handleSelectCategory(category)}>
-                                                <Pencil />
-                                            </Button>
-                                        )}
-                                        <Button variant="destructive" size="icon" onClick={() => deleteCategory(category.id)}>
-                                            <Trash2 />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+            <Card className="mt-4 flex-1 min-h-0 p-0">
+                <CardContent className="h-full p-0">
+                        <AgGridReact
+                            rowData={categories}
+                            theme={themeQuartz}
+                            columnDefs={columnDefs}
+                            autoSizeStrategy={{ type: "fitGridWidth" }}
+                            context={{ selectedCategory, handleSelectCategory, handleCancelEdit, deleteCategory }}
+                        />
                 </CardContent>
             </Card>
         </div>

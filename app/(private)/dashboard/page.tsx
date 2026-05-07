@@ -1,14 +1,23 @@
 "use client"
 
-import client from '@/app/api/client'
-import { Button } from '@/components/ui/button'
+import { Category } from "@/types/category"
+import { useCallback, useEffect, useState } from "react"
 
 const DashBoard =  () => {
+  const [categories, setCategories] = useState<Category[]>([])
+
+  const fetchCategories = useCallback(async () => {
+      const res = await fetch("/api/categories")
+      const data = await res.json()
+      setCategories(data)
+  }, []) 
+
+  useEffect(() => {
+      fetchCategories()
+  }, [fetchCategories])
 
   return (
     <div>
-         This is our dashboard
-         <Button onClick={()=> client.auth.signOut()}>Terminar sessão</Button>
     </div>
   )
 }

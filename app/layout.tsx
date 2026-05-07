@@ -2,6 +2,17 @@
 import { AuthProvider } from "@/components/context/AuthProvider";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { AllCommunityModule } from 'ag-grid-community';
+import { AgGridProvider } from 'ag-grid-react';
+import { Lato } from "next/font/google"
+
+const lato = Lato({
+    subsets: ["latin"],
+    weight: ["100", "300", "400", "700", "900"],
+    variable: "--font-lato",
+})
+
+const modules = [AllCommunityModule];
 
 export default function RootLayout({
   children,
@@ -10,12 +21,14 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
-      className={` h-full antialiased`}
+      lang="pt"
+      className={` h-full antialiased ${lato.variable}`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className={`min-h-full flex flex-col ${lato.variable} font-lato`}>
         <AuthProvider>
-          {children}
+          <AgGridProvider modules={modules}>
+            {children}
+          </AgGridProvider>
         </AuthProvider>
         <Toaster/>
       </body>

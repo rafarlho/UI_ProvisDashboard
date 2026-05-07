@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { Category } from "../../../types/category"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Trash2, Pencil, X } from 'lucide-react'
 import { toast } from "sonner"
@@ -11,6 +10,8 @@ import { Input } from "@/components/ui/input"
 import { Product } from "@/types/product"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { AgGridReact } from "ag-grid-react"
+import { themeQuartz } from 'ag-grid-community';
 
 const emptyProduct: Product = {
     name: "",
@@ -72,6 +73,44 @@ const Products = () => {
         await fetchProducts()
         setLoading(false)
     }
+
+    const ActionCellRenderer = (params: any) => {
+        const product = params.data;
+        const isSelected = params.context?.selectedProduct?.id === product.id;
+
+        return (
+            <div className="flex gap-1">
+                {isSelected ? (
+                    <Button variant="secondary" size="icon" onClick={() => params.context.handleCancelEdit()}>
+                        <X />
+                    </Button>
+                ) : (
+                    <Button variant="secondary" size="icon" onClick={() => params.context.handleSelectProduct(product)}>
+                        <Pencil />
+                    </Button>
+                )}
+                <Button variant="destructive" size="icon" onClick={() => params.context.deleteProduct(product.id!)}>
+                    <Trash2 />
+                </Button>
+            </div>
+        );
+    };
+
+    const columnDefs = [
+        { field: "name", headerName: "Nome", flex:1 },
+        { field: "description", headerName: "Descrição", flex:2 },
+        { field: "tax", headerName: "IVA", width: 100 },
+        { field: "Category.name", headerName: "Categoria",width: 150 },
+        { field: "unit_price", headerName: "Preço", width: 100 },
+        { field: "box_price", headerName: "Preço por caixa", width: 150 },
+        { field: "quantity", headerName: "Quantidade", width: 150 },
+        {
+            field: "actions",
+            headerName: "",
+            width: 100,
+            cellRenderer: ActionCellRenderer, 
+        },
+    ]
 
     const editProduct = async () => {
         if (!selectedProduct || !validate()) return
@@ -137,8 +176,7 @@ const Products = () => {
     const isEditing = selectedProduct !== null
 
     return (
-        <div className="p-10">
-            <h1>Products</h1>
+        <div className="p-10 flex flex-col h-screen">
 
 
             <Card>
@@ -153,7 +191,7 @@ const Products = () => {
                         }}
                     >
                         <div className="flex flex-wrap gap-5">
-                            <div className="grid gap-1 w-50">
+                            <div className="grid gap-1 ">
                                 <Label className="px-2">Nome</Label>
                                 <Input
                                     type="text"
@@ -262,51 +300,18 @@ const Products = () => {
                 </CardContent>
             </Card>
 
-            <Card className="mt-4">
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Nome</TableHead>
-                                <TableHead>Descrição</TableHead>
-                                <TableHead>IVA</TableHead>
-                                <TableHead>Categoria</TableHead>
-                                <TableHead>Preço</TableHead>
-                                <TableHead>Preço por caixa</TableHead>
-                                <TableHead>Quantidade</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {products.map((product, index) =>
-                                <TableRow key={index}>
-                                    <TableCell className="font-medium">{product.name}</TableCell>
-                                    <TableCell>{product.description}</TableCell>
-                                    <TableCell>{product.tax}%</TableCell>
-                                    <TableCell>{product.Category?.name}</TableCell>
-                                    <TableCell>{product.unit_price? `${product.unit_price}€` : "" }</TableCell>
-                                    <TableCell>{product.box_price? `${product.box_price}€` : "" }</TableCell>
-                                    <TableCell>{product.quantity ?? ""}</TableCell>
-                                    <TableCell className="text-right">
-                                        {selectedProduct?.id === product.id ? (
-                                            <Button variant="secondary" size="icon" onClick={handleCancelEdit}>
-                                                <X />
-                                            </Button>
-                                        ) : (
-                                            <Button variant="secondary" size="icon" onClick={() => handleSelectProduct(product)}>
-                                                <Pencil />
-                                            </Button>
-                                        )}
-                                        <Button variant="destructive" size="icon" onClick={() => deleteProduct(product.id!)}>
-                                            <Trash2 />
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
+            <Card className="mt-4 flex-1 min-h-0 p-0">
+                <CardContent className="h-full p-0">
+                        <AgGridReact
+                            rowData={products}
+                            theme={themeQuartz}
+                            columnDefs={columnDefs}
+                            autoSizeStrategy={{ type: "fitGridWidth" }}
+                            context={{ selectedProduct, handleSelectProduct, handleCancelEdit, deleteProduct }}
+                        />
                 </CardContent>
             </Card>
+
         </div>
     )
 }

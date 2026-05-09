@@ -17,9 +17,8 @@ const emptyProduct: Product = {
     name: "",
     description: "",
     tax: 0,
-    quantity: 0,
-    unit_price: 0,
-    box_price: 0,
+    quantity: 1,
+    price: 0,
     category_id: undefined,
 }
 
@@ -99,10 +98,9 @@ const Products = () => {
     const columnDefs = [
         { field: "name", headerName: "Nome", flex:1 },
         { field: "description", headerName: "Descrição", flex:2 },
-        { field: "tax", headerName: "IVA", width: 100 },
+        { field: "tax", headerName: "IVA(%)", width: 100 },
         { field: "Category.name", headerName: "Categoria",width: 150 },
-        { field: "unit_price", headerName: "Preço", width: 100 },
-        { field: "box_price", headerName: "Preço por caixa", width: 150 },
+        { field: "price", headerName: "Preço(€)", width: 100 },
         { field: "quantity", headerName: "Quantidade", width: 150 },
         {
             field: "actions",
@@ -115,7 +113,6 @@ const Products = () => {
     const editProduct = async () => {
         if (!selectedProduct || !validate()) return
         const product = {
-            box_price: formValue.box_price ,
             category_id: formValue.category_id ,
             created_at: formValue.created_at ,
             description: formValue.description ,
@@ -123,7 +120,7 @@ const Products = () => {
             name: formValue.name ,
             quantity: formValue.quantity ,
             tax: formValue.tax ,
-            unit_price: formValue.unit_price ,
+            price: formValue.price ,
         } 
         setLoading(true)
         const res = await fetch(`/api/products/${selectedProduct.id}`, {
@@ -255,31 +252,20 @@ const Products = () => {
                                     type="number"
                                     min={0}
                                     step="0.01"
-                                    value={formValue.unit_price ?? 0}
-                                    onChange={(e) => handleChange('unit_price', Number(e.target.value))}
+                                    value={formValue.price}
+                                    onChange={(e) => handleChange('price', Number(e.target.value))}
                                     placeholder="Preço"
                                 />
-                                {errors.unit_price && <p className="text-red-500 text-xs px-2">{errors.unit_price}</p>}
+                                {errors.price && <p className="text-red-500 text-xs px-2">{errors.price}</p>}
                             </div>
 
-                            <div className="grid gap-1 w-50">
-                                <Label className="px-2">Preço por caixa (€)</Label>
-                                <Input
-                                    type="number"
-                                    min={0}
-                                    step="0.01"
-                                    value={formValue.box_price ?? 0}
-                                    onChange={(e) => handleChange('box_price', Number(e.target.value))}
-                                    placeholder="Preço por caixa"
-                                />
-                            </div>
 
                             <div className="grid gap-1 w-25">
                                 <Label className="px-2">Quantidade</Label>
                                 <Input
                                     type="number"
                                     min={0}
-                                    value={formValue.quantity ?? 0}
+                                    value={formValue.quantity ?? 1}
                                     onChange={(e) => handleChange('quantity', Number(e.target.value))}
                                     placeholder="Quantidade"
                                 />

@@ -9,6 +9,5 @@ export type Product = {
     category_id?:number
     Category?: Category
     quantity?:number
-    unit_price?: number,
-    box_price?: number
+    price?: number,
 }
